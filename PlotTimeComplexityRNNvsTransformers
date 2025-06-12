@@ -1,0 +1,79 @@
+import numpy as np
+import time
+import matplotlib.pyplot as plt
+
+# ---------------------------------------------------------
+# Simulates a Recurrent Neural Network (RNN) processing
+# ---------------------------------------------------------
+def simulate_rnn(n, d):
+    """
+    Simulate a basic RNN for a sequence of length n with embedding dimension d.
+    The RNN processes one time step at a time and carries forward the hidden state.
+    """
+    h = np.zeros((n, d))                     # Initialize hidden states
+    x = np.random.rand(n, d)                 # Random input sequence
+    w = np.random.rand(d, d)                 # Weight matrix for transformation
+
+    # Sequentially compute each hidden state
+    for t in range(1, n):
+        h[t] = np.tanh(np.dot(x[t], w) + np.dot(h[t - 1], w))  # RNN update rule
+    return h
+
+
+# ---------------------------------------------------------
+# Simulates a simplified Self-Attention mechanism
+# ---------------------------------------------------------
+def simulate_self_attention(n, d):
+    """
+    Simulate a self-attention mechanism where every token in the input sequence
+    attends to all other tokens to compute contextualized representations.
+    """
+    x = np.random.rand(n, d)                 # Random input sequence
+
+    # Compute query, key, and value projections
+    q = x @ np.random.rand(d, d)             # Queries
+    k = x @ np.random.rand(d, d)             # Keys
+    v = x @ np.random.rand(d, d)             # Values
+
+    # Compute scaled dot-product attention scores
+    attention_scores = q @ k.T               # Dot-product similarity (n x n)
+    attention_weights = attention_scores / np.sqrt(d)  # Scale for stability
+
+    # Compute the final attention output
+    attention_output = attention_weights @ v
+    return attention_output
+
+
+# ---------------------------------------------------------
+# Run the simulation across varying sequence lengths
+# ---------------------------------------------------------
+sequence_lengths = list(range(10, 310, 30))  # Sequence lengths from 10 to 300
+rnn_times = []          # To record RNN execution time
+attention_times = []    # To record self-attention execution time
+
+for n in sequence_lengths:
+    d = 2  # Embedding dimension
+
+    # Time RNN simulation
+    start = time.time()
+    simulate_rnn(n, d)
+    rnn_times.append(time.time() - start)
+
+    # Time Self-Attention simulation
+    start = time.time()
+    simulate_self_attention(n, d)
+    attention_times.append(time.time() - start)
+
+# ---------------------------------------------------------
+# Plotting the Results for Comparison
+# ---------------------------------------------------------
+plt.figure(figsize=(10, 6))
+plt.plot(sequence_lengths, rnn_times, label='RNN (O(n))', marker='o')
+plt.plot(sequence_lengths, attention_times, label='Self-Attention (O(n²))', marker='s')
+plt.xlabel('Sequence Length (n)')
+plt.ylabel('Execution Time (seconds)')
+plt.title('Time Complexity Comparison: RNN vs Self-Attention')
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
